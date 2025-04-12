@@ -9,7 +9,7 @@ build:
  @echo "+ $@"
  @echo "Creating folder $(BUILD_DIR)..."
  @mkdir -p $(BUILD_DIR)
- @go build -o $(BUILD_DIR)/data-provider-service ./cmd/main.go
+ @go build -o $(BUILD_DIR)/(APP_NAME) ./cmd/main.go
 
 run: build
  @echo "Running $(APP_NAME)..."

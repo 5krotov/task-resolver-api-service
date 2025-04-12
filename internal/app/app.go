@@ -3,7 +3,7 @@ package app
 import (
 	"api-service/internal/config"
 	"api-service/internal/http"
-	"api-service/internal/service/hello_world_service"
+	taskservice "api-service/internal/service/task_service"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,9 +17,10 @@ func NewApp() *App {
 }
 
 func (*App) Run(cfg config.Config) {
-	server := http.NewServer(cfg.HTTPConfig)
-	service := hello_world_service.NewHelloWorldService()
-	service.Register(server.Mux)
+	server := http.NewServer(cfg.ApiService.HTTPConfig)
+	taskService := taskservice.NewTaskService(cfg.Agent, cfg.DataProvider)
+	taskHandler := taskservice.NewTaskHandler(taskService)
+	taskHandler.Register(server.Mux)
 
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGINT, syscall.SIGTERM)

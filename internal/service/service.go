@@ -2,6 +2,6 @@ package service
 
 import "net/http"
 
-type Service interface {
+type Handler interface {
 	Register(mux *http.ServeMux)
 }

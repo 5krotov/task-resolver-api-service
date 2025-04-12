@@ -2,13 +2,28 @@ package config
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"io"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	HTTPConfig `yaml:"http" validate:"required"`
+	ApiService   ApiServiceConfig   `yaml:"api-service" validate:"required"`
+	Agent        AgentConfig        `yaml:"agent" validate:"required"`
+	DataProvider DataProviderConfig `yaml:"data-provider" validate:"required"`
+}
+
+type ApiServiceConfig struct {
+	HTTPConfig `yaml:",inline" validate:"required"`
+}
+
+type AgentConfig struct {
+	Addr string `yaml:"addr" validate:"required"`
+}
+
+type DataProviderConfig struct {
+	Addr string `yaml:"addr" validate:"required"`
 }
 
 type HTTPConfig struct {
