@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
+
+	api "github.com/5krotov/task-resolver-pkg/api/v1"
+	entity "github.com/5krotov/task-resolver-pkg/entity/v1"
 )
 
 const (
@@ -25,53 +27,7 @@ func NewTaskService(agent config.AgentConfig, dataProvider config.DataProviderCo
 	}
 }
 
-type Status struct {
-	Status    int       `json:"status"`
-	Timestamp time.Time `json:"timestamp"`
-}
-type Task struct {
-	Id            int      `json:"id"`
-	StatusHistory []Status `json:"status_history"`
-	TaskApi
-}
-
-func (svc TaskService) CreateTask(task TaskApi) (*Task, error) {
-	jsonTask, err := json.Marshal(task)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal task: %w", err)
-	}
-
-	req, err := http.NewRequest("POST", svc.DataProviderUrl, bytes.NewBuffer(jsonTask))
-	if err != nil {
-		return nil, fmt.Errorf("failed to create request: %w", err)
-	}
-
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("failed to send request: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
-
-	var createdTask Task
-	err = json.NewDecoder(resp.Body).Decode(&createdTask)
-	if err != nil {
-		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
-	}
-
-	startSolveTask, err := svc.solveTask(createdTask)
-	if err != nil {
-		return nil, err
-	}
-	return startSolveTask, nil
-}
-
-func (svc TaskService) solveTask(task Task) (*Task, error) {
+func (svc TaskService) CreateTask(task api.CreateTaskRequest) (*entity.Task, error) {
 	jsonTask, err := json.Marshal(task)
 	if err != nil {
 		return nil, fmt.Errorf("failed to marshal task: %w", err)
@@ -90,14 +46,43 @@ func (svc TaskService) solveTask(task Task) (*Task, error) {
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusCreated {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var createdTask entity.Task
+	err = json.NewDecoder(resp.Body).Decode(&createdTask)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
+
+	return &createdTask, nil
+}
+
+func (svc TaskService) GetTaskByID(id int64) (*entity.Task, error) {
+	url := fmt.Sprintf("%s/api/v1/task/%v", svc.DataProviderUrl, id)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to send request: %w", err)
+	}
+	defer resp.Body.Close()
+
 	if resp.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
-	task.StatusHistory = append(task.StatusHistory, Status{
-		Status:    InitialStatus,
-		Timestamp: time.Now(),
-	})
+	var task entity.Task
+	err = json.NewDecoder(resp.Body).Decode(&task)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal response: %w", err)
+	}
 
 	return &task, nil
 }

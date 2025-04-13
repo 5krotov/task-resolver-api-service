@@ -3,6 +3,10 @@ package taskservice
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+
+	api "github.com/5krotov/task-resolver-pkg/api/v1"
+	mux "github.com/gorilla/mux"
 )
 
 type TaskHandler struct {
@@ -16,21 +20,17 @@ func NewTaskHandler(svc *TaskService) *TaskHandler {
 }
 
 func (s *TaskHandler) Register(mux *http.ServeMux) {
-	mux.HandleFunc("/task", s.CreateTask)
+	mux.HandleFunc("/api/v1/task", s.CreateTask)
+	mux.HandleFunc("/api/v1/task/{id}", s.GetTaskByID)
 }
 
-type TaskApi struct {
-	Name       string `json:"name"`
-	Difficulty int    `json:"difficulty"`
-}
-
-func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
+func (h TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	var task TaskApi
+	var task api.CreateTaskRequest
 	err := json.NewDecoder(r.Body).Decode(&task)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -55,4 +55,28 @@ func (h *TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(createdTask)
+}
+
+func (h TaskHandler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	task, err := h.svc.GetTaskByID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+
+	err = json.NewEncoder(w).Encode(task)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 }

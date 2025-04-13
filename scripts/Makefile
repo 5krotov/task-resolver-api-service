@@ -6,15 +6,16 @@ BUILD_DIR = ./build
 all: build
 
 build:
- @echo "+ $@"
- @echo "Creating folder $(BUILD_DIR)..."
- @mkdir -p $(BUILD_DIR)
- @go build -o $(BUILD_DIR)/(APP_NAME) ./cmd/main.go
+	@echo "+ $@"
+	@echo "Creating folder $(BUILD_DIR)..."
+	@mkdir -p $(BUILD_DIR)
+	@go build -o $(BUILD_DIR)/$(APP_NAME) ./cmd/main.go
+
 
 run: build
- @echo "Running $(APP_NAME)..."
- @$(BUILD_DIR)/$(APP_NAME)
+	@echo "Running $(APP_NAME)..."
+	@$(BUILD_DIR)/$(APP_NAME) --config ./config.yaml
 
 clean:
- @echo "Clearing..."
- @rm -rf $(BUILD_DIR)
+	@echo "Clearing..."
+	@rm -rf $(BUILD_DIR)

@@ -17,7 +17,7 @@ func NewApp() *App {
 }
 
 func (*App) Run(cfg config.Config) {
-	server := http.NewServer(cfg.ApiService.HTTPConfig)
+	server := http.NewServer(cfg.ApiService.HTTP)
 	taskService := taskservice.NewTaskService(cfg.Agent, cfg.DataProvider)
 	taskHandler := taskservice.NewTaskHandler(taskService)
 	taskHandler.Register(server.Mux)

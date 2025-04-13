@@ -15,7 +15,7 @@ type Config struct {
 }
 
 type ApiServiceConfig struct {
-	HTTPConfig `yaml:",inline" validate:"required"`
+	HTTP HTTPConfig `yaml:"http" validate:"required"`
 }
 
 type AgentConfig struct {
