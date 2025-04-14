@@ -4,7 +4,6 @@ import (
 	"api-service/internal/app"
 	"api-service/internal/config"
 	"flag"
-	"fmt"
 	"log"
 )
 
@@ -19,7 +18,6 @@ func main() {
 		log.Fatalf("Error load config: %v", err)
 		return
 	}
-	fmt.Println(cfg)
 
 	a := app.NewApp()
 	a.Run(*cfg)

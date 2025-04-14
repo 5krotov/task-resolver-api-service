@@ -19,9 +19,10 @@ func NewTaskHandler(svc *TaskService) *TaskHandler {
 	}
 }
 
-func (s *TaskHandler) Register(mux *http.ServeMux) {
-	mux.HandleFunc("/api/v1/task", s.CreateTask)
-	mux.HandleFunc("/api/v1/task/{id}", s.GetTaskByID)
+func (s *TaskHandler) Register(mux *mux.Router) {
+	task := mux.PathPrefix("/api/v1/task").Subrouter()
+	task.HandleFunc("", s.CreateTask)
+	task.HandleFunc("/{id}", s.GetTaskByID)
 }
 
 func (h TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {

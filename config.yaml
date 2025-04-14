@@ -2,6 +2,6 @@ api-service:
   http:
     addr: "127.0.0.1:8083"
 agent:
-  addr: "127.0.0.1:8084"
+  addr: "http://127.0.0.1:36795"
 data-provider:
-  addr: "127.0.0.1:8084"
+  addr: "http://127.0.0.1:36795"

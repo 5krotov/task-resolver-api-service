@@ -33,7 +33,8 @@ func (svc TaskService) CreateTask(task api.CreateTaskRequest) (*entity.Task, err
 		return nil, fmt.Errorf("failed to marshal task: %w", err)
 	}
 
-	req, err := http.NewRequest("POST", svc.AgentUrl, bytes.NewBuffer(jsonTask))
+	url := fmt.Sprintf("%s/api/v1/task", svc.AgentUrl)
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(jsonTask))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
@@ -47,7 +48,7 @@ func (svc TaskService) CreateTask(task api.CreateTaskRequest) (*entity.Task, err
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusCreated {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("unexpected status code of agent: %d", resp.StatusCode)
 	}
 
 	var createdTask entity.Task
@@ -75,7 +76,7 @@ func (svc TaskService) GetTaskByID(id int64) (*entity.Task, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return nil, fmt.Errorf("unexpected status code of dataprovider: %d", resp.StatusCode)
 	}
 
 	var task entity.Task
