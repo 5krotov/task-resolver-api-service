@@ -1,5 +1,7 @@
 github.com/5krotov/task-resolver-pkg v1.0.0 h1:rHw9zQMsgPDaBLI7hQpCbgxw6Phk0NpJKGmrL69/STo=
 github.com/5krotov/task-resolver-pkg v1.0.0/go.mod h1:ouxPUVGf2HfkYeO0AremBcPXGiIgDSoerLNWXAwru5M=
+github.com/5krotov/task-resolver-pkg v1.0.2 h1:N7ZzuGlHWb1OsOLblTF/yzEtrRs1oF4B2aMg/Bhkc+8=
+github.com/5krotov/task-resolver-pkg v1.0.2/go.mod h1:ouxPUVGf2HfkYeO0AremBcPXGiIgDSoerLNWXAwru5M=
 github.com/gorilla/mux v1.8.1 h1:TuBL49tXwgrFYWhqrNgrUNEY92u81SPhu7sTdzQEiWY=
 github.com/gorilla/mux v1.8.1/go.mod h1:AKf9I4AEqPTmMytcMc0KkNouC66V3BtZ4qD5fmWSiMQ=
 gopkg.in/check.v1 v0.0.0-20161208181325-20d25e280405 h1:yhCVgyC4o1eVCa2tZl7eS0r+SDo693bJlVdllGtEeKM=
