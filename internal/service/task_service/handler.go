@@ -91,12 +91,12 @@ func (h *TaskHandler) GetTasksByFilter(w http.ResponseWriter, r *http.Request) {
 	page := 1
 
 	if perPageStr != "" {
-		if v, err := strconv.Atoi(perPageStr); err == nil && v > 0 {
+		if v, err := strconv.Atoi(perPageStr); err == nil && v >= 0 {
 			perPage = v
 		}
 	}
 	if pageStr != "" {
-		if v, err := strconv.Atoi(pageStr); err == nil && v > 0 {
+		if v, err := strconv.Atoi(pageStr); err == nil && v >= 0 {
 			page = v
 		}
 	}
