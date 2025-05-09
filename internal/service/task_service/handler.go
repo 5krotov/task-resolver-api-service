@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	api "github.com/5krotov/task-resolver-pkg/api/v1"
+	"github.com/5krotov/task-resolver-pkg/rest-api/v1/api"
 	mux "github.com/gorilla/mux"
 )
 
@@ -49,7 +49,7 @@ func (h TaskHandler) CreateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	createdTask, err := h.svc.CreateTask(task)
+	createdTask, err := h.svc.CreateTask(r.Context(), task)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -71,7 +71,7 @@ func (h TaskHandler) GetTaskByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	task, err := h.svc.GetTaskByID(id)
+	task, err := h.svc.GetTaskByID(r.Context(), id)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -106,7 +106,7 @@ func (h *TaskHandler) GetTasksByFilter(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	res, err := h.svc.GetTasksByFilter(perPage, page)
+	res, err := h.svc.GetTasksByFilter(r.Context(), perPage, page)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -19,11 +19,17 @@ type ApiServiceConfig struct {
 }
 
 type AgentConfig struct {
-	Addr string `yaml:"addr" validate:"required"`
+	Addr           string `yaml:"addr" validate:"required"`
+	UseTLS         bool   `yaml:"useTLS" validate:"required"`
+	CaCert         string `yaml:"caCert" validate:"required"`
+	GrpcServerName string `yaml:"grpcServerName" validate:"required"`
 }
 
 type DataProviderConfig struct {
-	Addr string `yaml:"addr" validate:"required"`
+	Addr           string `yaml:"addr" validate:"required"`
+	UseTLS         bool   `yaml:"useTLS" validate:"required"`
+	CaCert         string `yaml:"caCert" validate:"required"`
+	GrpcServerName string `yaml:"grpcServerName" validate:"required"`
 }
 
 type HTTPConfig struct {
