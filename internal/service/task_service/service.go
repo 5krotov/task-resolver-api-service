@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 type TaskService struct {
@@ -38,7 +39,7 @@ func NewTaskService(agent config.AgentConfig, dataProvider config.DataProviderCo
 		}
 	} else {
 		var err error
-		agentConn, err = grpc.NewClient(agent.Addr)
+		agentConn, err = grpc.NewClient(agent.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			logger.Fatal(fmt.Sprintf("failed to connect to %v, error: %v", agent.Addr, err))
 		}
@@ -61,7 +62,7 @@ func NewTaskService(agent config.AgentConfig, dataProvider config.DataProviderCo
 		}
 	} else {
 		var err error
-		dataProviderConn, err = grpc.NewClient(dataProvider.Addr)
+		dataProviderConn, err = grpc.NewClient(dataProvider.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			logger.Fatal(fmt.Sprintf("failed to connect to %v, error: %v", dataProvider.Addr, err))
 		}
