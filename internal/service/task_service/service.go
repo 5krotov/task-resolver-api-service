@@ -3,8 +3,11 @@ package taskservice
 import (
 	"api-service/internal/config"
 	"context"
+	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"log"
+	"os"
 
 	pb "github.com/5krotov/task-resolver-pkg/grpc-api/v1"
 	"github.com/5krotov/task-resolver-pkg/rest-api/v1/api"
@@ -23,22 +26,46 @@ type TaskService struct {
 	logger             *zap.Logger
 }
 
-func NewTaskService(agent config.AgentConfig, dataProvider config.DataProviderConfig, logger *zap.Logger) *TaskService {
+func NewTaskService(agent config.AgentConfig, dataProvider config.DataProviderConfig, grpcClient config.GRPCClientConfig, logger *zap.Logger) *TaskService {
+	var err error
+
+	var clientCert tls.Certificate
+	if len(grpcClient.ClientCert) != 0 && len(grpcClient.ClientKey) != 0 {
+		clientCert, err = tls.LoadX509KeyPair(grpcClient.ClientCert, grpcClient.ClientKey)
+		if err != nil {
+			log.Fatalf("Failed to load client cert: %v", err)
+		}
+	}
+
+	var caCert []byte
+	if len(grpcClient.CaCert) != 0 {
+		caCert, err = os.ReadFile(grpcClient.CaCert)
+		if err != nil {
+			log.Fatalf("Failed to read CA cert: %v", err)
+		}
+	}
+
 	var agentConn grpc.ClientConnInterface
 	if agent.UseTLS {
 		caCertPool := x509.NewCertPool()
-		if !caCertPool.AppendCertsFromPEM([]byte(agent.CaCert)) {
+		if !caCertPool.AppendCertsFromPEM(caCert) {
 			logger.Fatal("failed to add CA certificate for agent service")
 		}
 
-		creds := credentials.NewClientTLSFromCert(caCertPool, agent.GrpcServerName)
-		var err error
-		agentConn, err = grpc.NewClient(agent.Addr, grpc.WithTransportCredentials(creds))
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{clientCert},
+			RootCAs:      caCertPool,
+			ServerName:   agent.GrpcServerName,
+		}
+
+		agentConn, err = grpc.NewClient(
+			agent.Addr,
+			grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+		)
 		if err != nil {
 			logger.Fatal(fmt.Sprintf("failed to connect to %v, error: %v", agent.Addr, err))
 		}
 	} else {
-		var err error
 		agentConn, err = grpc.NewClient(agent.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			logger.Fatal(fmt.Sprintf("failed to connect to %v, error: %v", agent.Addr, err))
@@ -50,18 +77,24 @@ func NewTaskService(agent config.AgentConfig, dataProvider config.DataProviderCo
 	var dataProviderConn grpc.ClientConnInterface
 	if dataProvider.UseTLS {
 		caCertPool := x509.NewCertPool()
-		if !caCertPool.AppendCertsFromPEM([]byte(dataProvider.CaCert)) {
+		if !caCertPool.AppendCertsFromPEM(caCert) {
 			logger.Fatal("failed to add CA certificate for dataProvider service")
 		}
 
-		creds := credentials.NewClientTLSFromCert(caCertPool, dataProvider.GrpcServerName)
-		var err error
-		dataProviderConn, err = grpc.NewClient(dataProvider.Addr, grpc.WithTransportCredentials(creds))
+		tlsConfig := &tls.Config{
+			Certificates: []tls.Certificate{clientCert},
+			RootCAs:      caCertPool,
+			ServerName:   dataProvider.GrpcServerName,
+		}
+
+		dataProviderConn, err = grpc.NewClient(
+			dataProvider.Addr,
+			grpc.WithTransportCredentials(credentials.NewTLS(tlsConfig)),
+		)
 		if err != nil {
 			logger.Fatal(fmt.Sprintf("failed to connect to %v, error: %v", dataProvider.Addr, err))
 		}
 	} else {
-		var err error
 		dataProviderConn, err = grpc.NewClient(dataProvider.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 		if err != nil {
 			logger.Fatal(fmt.Sprintf("failed to connect to %v, error: %v", dataProvider.Addr, err))

@@ -26,7 +26,7 @@ func (*App) Run(cfg config.Config) {
 		log.Fatal("problem with logger")
 		return
 	}
-	taskService := taskservice.NewTaskService(cfg.Agent, cfg.DataProvider, logger)
+	taskService := taskservice.NewTaskService(cfg.Agent, cfg.DataProvider, cfg.GRPCClient, logger)
 	taskHandler := taskservice.NewTaskHandler(taskService)
 	taskHandler.Register(server.Mux)
 

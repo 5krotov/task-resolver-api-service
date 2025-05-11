@@ -12,6 +12,7 @@ type Config struct {
 	ApiService   ApiServiceConfig   `yaml:"api-service" validate:"required"`
 	Agent        AgentConfig        `yaml:"agent" validate:"required"`
 	DataProvider DataProviderConfig `yaml:"data-provider" validate:"required"`
+	GRPCClient   GRPCClientConfig   `yaml:"grpc-client" validate:"required"`
 }
 
 type ApiServiceConfig struct {
@@ -21,15 +22,19 @@ type ApiServiceConfig struct {
 type AgentConfig struct {
 	Addr           string `yaml:"addr" validate:"required"`
 	UseTLS         bool   `yaml:"useTLS" validate:"required"`
-	CaCert         string `yaml:"caCert" validate:"required"`
 	GrpcServerName string `yaml:"grpcServerName" validate:"required"`
 }
 
 type DataProviderConfig struct {
 	Addr           string `yaml:"addr" validate:"required"`
 	UseTLS         bool   `yaml:"useTLS" validate:"required"`
-	CaCert         string `yaml:"caCert" validate:"required"`
 	GrpcServerName string `yaml:"grpcServerName" validate:"required"`
+}
+
+type GRPCClientConfig struct {
+	CaCert     string `yaml:"caCert" validate:"required"`
+	ClientCert string `yaml:"clientCert" validate:"required"`
+	ClientKey  string `yaml:"clientKey" validate:"required"`
 }
 
 type HTTPConfig struct {
